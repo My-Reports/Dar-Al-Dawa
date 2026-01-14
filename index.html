@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DAD Reporting System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="login-screen" class="screen active bg-main">
+
+    <img src="Assets/DAD2.gif" class="logo-flag">
+
+    <div class="login-box">
+        <h1 class="title">Marketing Department</h1>
+        <h2 class="subtitle">Reporting System</h2>
+
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+
+        <button id="login-btn" onclick="login()" disabled>Login</button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Powered by <span>Eyad Sulayman</span></p>
+    </footer>
+</div>
+
+<!-- REPORTS PAGE -->
+<div id="report-screen" class="screen bg-reports">
+
+    <div class="top-menu">
+        <span>DAD | Reports</span>
+        <img src="Assets/50.gif" class="top-gif">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="reports-grid">
+
+        <div class="report-card ims"
+             onclick="openReport('https://app.powerbi.com/view?r=eyJrIjoiZTczODU1YWUtZDQzOS00OWU3LTkzOWUtZjE5Y2YxMWUzZTlkIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9')">
+            IMS Overall Analysis
+        </div>
+
+        <div class="report-card tms"
+             onclick="openReport('https://app.powerbi.com/view?r=eyJrIjoiOWYxNTliMjAtODNjZC00Yjg0LTg2MGMtYTI4NDBkMDYzZGY5IiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9')">
+            TMS Overall Analysis
+        </div>
+
+        <div class="report-card iqvia"
+             onclick="openReport('https://app.powerbi.com/view?r=eyJrIjoiYWRjYWVjNDEtOGE2My00YjIwLTllNDEtYTEyMWYxZjBmNWUwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9')">
+            IQVIA – MIDAS
+        </div>
+
+        <div class="report-card pharma"
+             onclick="openReport('https://app.powerbi.com/view?r=eyJrIjoiOGYxNDJjNjMtYzVlNi00ZjRkLTg5NzYtZGJjZjM4NzVhMDMwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9')">
+            AMS – Pharma
+        </div>
+
+        <div class="report-card medical"
+             onclick="openReport('https://app.powerbi.com/view?r=eyJrIjoiMDQzMWNhYzctNmU5Zi00NTQ2LWIzM2UtMTQ5MTQyMTE1OWRlIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9')">
+            AMS – Medical
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Powered by <span>Eyad Sulayman</span></p>
+    </footer>
+</div>
+
+<!-- REPORT VIEW -->
+<div id="viewer-screen" class="screen bg-reports">
+
+    <button class="back-btn" onclick="backToReports()">☰ Menu</button>
+    <iframe id="report-frame" allowfullscreen></iframe>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
