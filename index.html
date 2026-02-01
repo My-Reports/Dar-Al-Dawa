@@ -16,20 +16,21 @@
         <h1 class="title">Marketing Department</h1>
         <h2 class="subtitle">Reporting System</h2>
 
-        <input type="text" id="username" placeholder="Username" autocomplete="username">
-        <div class="password-container">
-            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-            <button type="button" id="toggle-password">Show</button>
-        </div>
+        <!-- FIXED USERNAME -->
+        <input type="text" id="username" value="mkt" readonly>
 
+        <!-- PASSWORD REMOVED -->
+
+        <!-- REMEMBER USERNAME (kept for structure) -->
         <div class="remember-box">
-            <input type="checkbox" id="remember"> <label for="remember">Remember Username</label>
+            <input type="checkbox" id="remember" checked disabled>
+            <label for="remember">User Fixed</label>
         </div>
 
-        <button id="login-btn" onclick="login()" disabled>Login</button>
+        <!-- LOGIN ALWAYS ENABLED -->
+        <button id="login-btn" onclick="login()">Login</button>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <p>Powered by <span>Eyad Sulayman</span></p>
     </footer>
@@ -73,7 +74,6 @@
 
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <p>Powered by <span>Eyad Sulayman</span></p>
     </footer>
@@ -81,10 +81,8 @@
 
 <!-- REPORT VIEW -->
 <div id="viewer-screen" class="screen bg-reports">
-
     <button class="back-btn" onclick="backToReports()">☰ Menu</button>
     <iframe id="report-frame" allowfullscreen></iframe>
-
 </div>
 
 <script src="script.js"></script>
