@@ -3,11 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light">
   <title>DAD Reporting System</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body class="mode-dark">
+
+  <a class="skip-link" href="#appMain">Skip to content</a>
+
+  <!-- Decorative background -->
+  <div class="bg-decor" aria-hidden="true">
+    <span class="blob blob-a"></span>
+    <span class="blob blob-b"></span>
+    <span class="grid"></span>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
   <!-- ===== Topbar (Global) ===== -->
   <header class="topbar" aria-label="Top bar">
@@ -21,16 +34,17 @@
 
     <div class="topbar-center">
       <span class="time-badge" id="time-jo" aria-label="Jordan date and time">🇯🇴 --</span>
+      <span class="status-pill" id="netStatus" aria-label="Network status" hidden></span>
     </div>
 
     <div class="topbar-actions">
-      <!-- ✅ Viewer actions (only visible in viewer screen) -->
+      <!-- Viewer actions (only visible in viewer screen) -->
       <div class="viewer-actions-top" id="viewerActionsTop" aria-label="Viewer actions">
         <button class="icon-btn icon-strong has-tooltip" id="reloadTopBtn" type="button" data-tooltip="Reload" aria-label="Reload">🔄</button>
         <button class="icon-btn icon-strong has-tooltip" id="newTabTopBtn" type="button" data-tooltip="New Tab" aria-label="Open in new tab">🔗</button>
       </div>
 
-      <!-- 🌐 Language -->
+      <!-- Language -->
       <div class="lang-menu" aria-label="Language menu">
         <button
           id="langToggle"
@@ -57,7 +71,7 @@
         </div>
       </div>
 
-      <!-- 🎨 Theme -->
+      <!-- Theme -->
       <button
         class="icon-btn icon-strong has-tooltip"
         id="toggleThemeBtn"
@@ -68,104 +82,147 @@
     </div>
   </header>
 
-  <!-- ================= LOGIN ================= -->
-  <section id="login-screen" class="screen is-active screen-login" aria-label="Login screen">
-    <div class="login-shell">
-      <img src="Assets/DAD2.gif" class="login-logo" alt="DAD Logo" />
+  <main id="appMain" class="app" role="main">
 
-      <div class="login-card">
-        <h1 class="login-title" data-i18n="mktDept">Marketing Department</h1>
-        <p class="login-subtitle" data-i18n="reportingSystem">Reporting System</p>
+    <!-- ================= LOGIN ================= -->
+    <section id="login-screen" class="screen is-active screen-login" aria-label="Login screen">
+      <div class="login-shell">
+        <img src="Assets/DAD2.gif" class="login-logo" alt="DAD Logo" />
 
-        <label class="field-label" for="username" data-i18n="username">Username</label>
-        <input type="text" id="username" value="mkt" readonly />
+        <div class="login-card">
+          <div class="badge-row">
+            <span class="pill pill-soft" data-i18n="welcomePill">Welcome</span>
+          </div>
 
-        <div class="info-chip">
-          <span class="dot" aria-hidden="true"></span>
-          <span data-i18n="userFixed">User Fixed – No Password Required</span>
-        </div>
+          <h1 class="login-title" data-i18n="mktDept">Marketing Department</h1>
+          <p class="login-subtitle" data-i18n="reportingSystem">Reporting System</p>
 
-        <button id="login-btn" class="btn-primary" onclick="login()" data-i18n="enter">Enter Dashboard</button>
-      </div>
-    </div>
+          <div class="hint" data-i18n="loginHint">
+            Open dashboards, explore insights, and export results quickly.
+          </div>
 
-    <footer class="footer">
-      <p><span data-i18n="poweredBy">Powered by</span> <span class="author">Eyad Sulayman</span></p>
-    </footer>
-  </section>
+          <label class="field-label" for="username" data-i18n="username">Username</label>
+          <input type="text" id="username" value="mkt" readonly />
 
-  <!-- ================= REPORTS ================= -->
-  <section id="report-screen" class="screen screen-reports" aria-label="Reports screen">
-    <div class="reports-layout">
-      <div class="reports-header">
-        <div class="reports-title">
-          <h2 data-i18n="reportsTitle">Reports</h2>
-          <p data-i18n="reportsSub">Choose a report to open</p>
-        </div>
+          <div class="info-chip" role="note">
+            <span class="dot" aria-hidden="true"></span>
+            <span data-i18n="userFixed">User Fixed – No Password Required</span>
+          </div>
 
-        <img src="Assets/50.gif" class="top-gif" alt="" />
+          <button id="login-btn" class="btn-primary" type="button" data-i18n="enter">Enter Dashboard</button>
 
-        <button class="btn-ghost" onclick="logout()">
-          <span data-i18n="logout">Logout</span>
-        </button>
-      </div>
-
-      <!-- Scroll only inside list -->
-      <div class="reports-scroll" aria-label="Reports list">
-        <div class="reports-grid" id="reportsGrid">
-          <button class="report-card" data-key="ims"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiZTczODU1YWUtZDQzOS00OWU3LTkzOWUtZjE5Y2YxMWUzZTlkIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_ims">IMS Overall Analysis</button>
-
-          <button class="report-card" data-key="tms"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiOWYxNTliMjAtODNjZC00Yjg0LTg2MGMtYTI4NDBkMDYzZGY5IiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_tms">TMS Overall Analysis</button>
-
-          <button class="report-card" data-key="iqvia"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiYWRjYWVjNDEtOGE2My00YjIwLTllNDEtYTEyMWYxZjBmNWUwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_iqvia">IQVIA – MIDAS</button>
-
-          <button class="report-card" data-key="pharma"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiOGYxNDJjNjMtYzVlNi00ZjRkLTg5NzYtZGJjZjM4NzVhMDMwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_pharma">AMS – Pharma</button>
-
-          <button class="report-card" data-key="medical"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiMDQzMWNhYzctNmU5Zi00NTQ2LWIzM2UtMTQ5MTQyMTE1OWRlIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_medical">AMS – Medical</button>
-
-          <!-- ✅ Same design, soft highlight only -->
-          <button class="report-card highlight-soft" data-key="ims2025"
-            data-url="https://app.powerbi.com/view?r=eyJrIjoiNTc1MWEyMTgtODVkYS00ZTg5LTgzNGEtNjkxOTEyMDVmODllIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
-            data-i18n="r_ims2025">2025 IMS Overall Analysis</button>
+          <div class="helper-row">
+            <span class="kbd">Tip</span>
+            <span class="helper-text" data-i18n="tipLogin">Press <b>Enter</b> to continue.</span>
+          </div>
         </div>
       </div>
 
-      <footer class="footer footer-inline">
+      <footer class="footer">
         <p><span data-i18n="poweredBy">Powered by</span> <span class="author">Eyad Sulayman</span></p>
       </footer>
-    </div>
-  </section>
+    </section>
 
-  <!-- ================= VIEWER ================= -->
-  <section id="viewer-screen" class="screen screen-viewer" aria-label="Viewer screen">
-    <!-- ✅ Floating glassy menu with dropdown -->
-    <div class="fab-menu" aria-label="Quick menu">
-      <button class="fab-btn" id="viewerMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Menu">☰</button>
-      <div class="fab-dropdown" id="viewerMenuDropdown" role="menu" aria-label="Reports menu"></div>
-    </div>
+    <!-- ================= REPORTS ================= -->
+    <section id="report-screen" class="screen screen-reports" aria-label="Reports screen">
+      <div class="reports-layout">
 
-    <div class="viewer-shell">
-      <div class="loading-overlay" id="viewerLoading" aria-live="polite">
-        <div class="spinner"></div>
-        <div class="loading-text">
-          <div class="loading-title" data-i18n="loading">Loading report…</div>
-          <div class="loading-sub" data-i18n="loadingSub">Please wait a moment</div>
+        <div class="reports-header">
+          <div class="reports-title">
+            <h2 data-i18n="reportsTitle">Reports</h2>
+            <p data-i18n="reportsSub">Choose a report to open</p>
+          </div>
+
+          <img src="Assets/50.gif" class="top-gif" alt="" />
+
+          <div class="reports-tools">
+            <div class="search-wrap">
+              <span class="search-ico" aria-hidden="true">🔎</span>
+              <input
+                id="reportSearch"
+                class="search-input"
+                type="search"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Search reports…"
+                aria-label="Search reports"
+              />
+              <button id="clearSearch" class="clear-btn" type="button" aria-label="Clear search" hidden>✕</button>
+            </div>
+
+            <button class="btn-ghost has-tooltip" id="openLastBtn" type="button" data-tooltip="Open last report" aria-label="Open last report">
+              <span data-i18n="openLast">Open Last</span>
+            </button>
+
+            <button class="btn-ghost" id="logoutBtn" type="button">
+              <span data-i18n="logout">Logout</span>
+            </button>
+          </div>
         </div>
+
+        <div class="reports-scroll" aria-label="Reports list">
+          <div class="reports-grid" id="reportsGrid">
+
+            <button class="report-card" data-key="ims"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiZTczODU1YWUtZDQzOS00OWU3LTkzOWUtZjE5Y2YxMWUzZTlkIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_ims">IMS Overall Analysis</button>
+
+            <button class="report-card" data-key="tms"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiOWYxNTliMjAtODNjZC00Yjg0LTg2MGMtYTI4NDBkMDYzZGY5IiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_tms">TMS Overall Analysis</button>
+
+            <button class="report-card" data-key="iqvia"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiYWRjYWVjNDEtOGE2My00YjIwLTllNDEtYTEyMWYxZjBmNWUwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_iqvia">IQVIA – MIDAS</button>
+
+            <button class="report-card" data-key="pharma"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiOGYxNDJjNjMtYzVlNi00ZjRkLTg5NzYtZGJjZjM4NzVhMDMwIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_pharma">AMS – Pharma</button>
+
+            <button class="report-card" data-key="medical"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiMDQzMWNhYzctNmU5Zi00NTQ2LWIzM2UtMTQ5MTQyMTE1OWRlIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_medical">AMS – Medical</button>
+
+            <button class="report-card highlight-soft" data-key="ims2025"
+              data-url="https://app.powerbi.com/view?r=eyJrIjoiNTc1MWEyMTgtODVkYS00ZTg5LTgzNGEtNjkxOTEyMDVmODllIiwidCI6IjhiNjAyNDRiLTFiZGQtNDk4YS04ODY3LTljNzJhNGQ5NzFhMCIsImMiOjl9"
+              data-i18n="r_ims2025">2025 IMS Overall Analysis</button>
+
+          </div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-ico" aria-hidden="true">📄</div>
+            <div class="empty-title" data-i18n="noResults">No matching reports</div>
+            <div class="empty-sub" data-i18n="noResultsSub">Try a different keyword.</div>
+          </div>
+        </div>
+
+        <footer class="footer footer-inline">
+          <p><span data-i18n="poweredBy">Powered by</span> <span class="author">Eyad Sulayman</span></p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= VIEWER ================= -->
+    <section id="viewer-screen" class="screen screen-viewer" aria-label="Viewer screen">
+      <div class="fab-menu" aria-label="Quick menu">
+        <button class="fab-btn" id="viewerMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Menu">☰</button>
+        <div class="fab-dropdown" id="viewerMenuDropdown" role="menu" aria-label="Reports menu"></div>
       </div>
 
-      <iframe id="report-frame" allowfullscreen></iframe>
-    </div>
-  </section>
+      <div class="viewer-shell">
+        <div class="loading-overlay" id="viewerLoading" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="loading-text">
+            <div class="loading-title" data-i18n="loading">Loading report…</div>
+            <div class="loading-sub" data-i18n="loadingSub">Please wait a moment</div>
+          </div>
+        </div>
+
+        <iframe id="report-frame" allowfullscreen referrerpolicy="no-referrer" title="Report Viewer"></iframe>
+      </div>
+    </section>
+
+  </main>
 
   <script src="script.js"></script>
 </body>

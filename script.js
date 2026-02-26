@@ -1,34 +1,49 @@
+"use strict";
+
 /* =========================
-   DAD Reporting System Pro
-   - Bilingual (AR/EN)
+   DAD Reporting System Ultra (Stable Layout)
+   - Bilingual (AR/EN) + RTL
    - Dark/Light
-   - Jordan day/date/time (Asia/Amman)
-   - Viewer actions in Topbar
-   - Glassy FAB menu with dropdown (Home + reports)
+   - Jordan time
+   - UX: Toasts, Search, Open Last
+   - Viewer actions + FAB menu
 ========================= */
 
-const screens = document.querySelectorAll(".screen");
-const frame = document.getElementById("report-frame");
-const cards = Array.from(document.querySelectorAll(".report-card"));
-const viewerLoading = document.getElementById("viewerLoading");
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-const timeJO = document.getElementById("time-jo");
+const screens = $$(".screen");
+const frame = $("#report-frame");
+const viewerLoading = $("#viewerLoading");
 
-const toggleThemeBtn = document.getElementById("toggleThemeBtn");
-const viewerActionsTop = document.getElementById("viewerActionsTop");
-const reloadTopBtn = document.getElementById("reloadTopBtn");
-const newTabTopBtn = document.getElementById("newTabTopBtn");
+const timeJO = $("#time-jo");
+const netStatus = $("#netStatus");
 
-/* Language popup */
-const langToggle = document.getElementById("langToggle");
-const langDropdown = document.getElementById("langDropdown");
-const langItems = Array.from(document.querySelectorAll(".lang-item"));
+const toggleThemeBtn = $("#toggleThemeBtn");
+const viewerActionsTop = $("#viewerActionsTop");
+const reloadTopBtn = $("#reloadTopBtn");
+const newTabTopBtn = $("#newTabTopBtn");
 
-/* FAB menu */
-const viewerMenuBtn = document.getElementById("viewerMenuBtn");
-const viewerMenuDropdown = document.getElementById("viewerMenuDropdown");
+const langToggle = $("#langToggle");
+const langDropdown = $("#langDropdown");
+const langItems = $$(".lang-item");
 
-/* ===== Translations ===== */
+const viewerMenuBtn = $("#viewerMenuBtn");
+const viewerMenuDropdown = $("#viewerMenuDropdown");
+
+const loginBtn = $("#login-btn");
+const logoutBtn = $("#logoutBtn");
+
+const reportsGrid = $("#reportsGrid");
+const reportCards = () => $$(".report-card", reportsGrid);
+
+const reportSearch = $("#reportSearch");
+const clearSearch = $("#clearSearch");
+const emptyState = $("#emptyState");
+const openLastBtn = $("#openLastBtn");
+
+const toastRegion = $("#toastRegion");
+
 const i18n = {
   en: {
     appName: "DAD Reporting System",
@@ -41,7 +56,6 @@ const i18n = {
     reportsTitle: "Reports",
     reportsSub: "Choose a report to open",
     logout: "Logout",
-    menu: "Menu",
     home: "Home",
     loading: "Loading report…",
     loadingSub: "Please wait a moment",
@@ -50,6 +64,21 @@ const i18n = {
     tooltipReload: "Reload",
     tooltipNewTab: "New Tab",
     poweredBy: "Powered by",
+
+    welcomePill: "Welcome",
+    loginHint: "Open dashboards, explore insights, and export results quickly.",
+    tipLogin: "Press <b>Enter</b> to continue.",
+
+    searchPlaceholder: "Search reports…",
+    noResults: "No matching reports",
+    noResultsSub: "Try a different keyword.",
+    openLast: "Open Last",
+    openLastNone: "No last report yet",
+
+    toastWelcomeTitle: "Welcome 👋",
+    toastWelcomeSub: "Choose a report and start exploring insights.",
+    toastOffline: "You are offline",
+    toastOnline: "Back online",
 
     r_ims: "IMS Overall Analysis",
     r_tms: "TMS Overall Analysis",
@@ -69,7 +98,6 @@ const i18n = {
     reportsTitle: "التقارير",
     reportsSub: "اختر تقريرًا لفتحه",
     logout: "تسجيل خروج",
-    menu: "القائمة",
     home: "الرئيسية",
     loading: "جارِ تحميل التقرير…",
     loadingSub: "يرجى الانتظار قليلًا",
@@ -78,6 +106,21 @@ const i18n = {
     tooltipReload: "تحديث",
     tooltipNewTab: "تبويب جديد",
     poweredBy: "Powered by",
+
+    welcomePill: "مرحبًا",
+    loginHint: "افتح لوحات المعلومات، واستكشف المؤشرات، واستخرج النتائج بسرعة.",
+    tipLogin: "اضغط <b>Enter</b> للمتابعة.",
+
+    searchPlaceholder: "ابحث عن التقارير…",
+    noResults: "لا توجد نتائج مطابقة",
+    noResultsSub: "جرّب كلمة مختلفة.",
+    openLast: "فتح الأخير",
+    openLastNone: "لا يوجد تقرير سابق بعد",
+
+    toastWelcomeTitle: "أهلًا 👋",
+    toastWelcomeSub: "اختر تقريرًا وابدأ استكشاف المؤشرات.",
+    toastOffline: "أنت غير متصل بالإنترنت",
+    toastOnline: "تمت العودة للاتصال",
 
     r_ims: "تحليل IMS الشامل",
     r_tms: "تحليل TMS الشامل",
@@ -91,16 +134,24 @@ const i18n = {
 let currentLang = localStorage.getItem("dad_lang") || "en";
 let currentMode = localStorage.getItem("dad_mode") || "dark";
 
-/* ===== Helpers ===== */
+const STORAGE = {
+  lastKey: "dad_last_report_key",
+  welcomed: "dad_welcomed"
+};
+
 function switchScreen(id){
   screens.forEach(s => s.classList.remove("is-active"));
-  document.getElementById(id).classList.add("is-active");
+  const target = document.getElementById(id);
+  if (target) target.classList.add("is-active");
 
   const inViewer = id === "viewer-screen";
   viewerActionsTop.classList.toggle("is-visible", inViewer);
   if(!inViewer) setViewerMenu(false);
 
-  window.scrollTo(0,0);
+  if (id === "login-screen") loginBtn?.focus?.();
+  if (id === "report-screen") reportSearch?.focus?.();
+
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 function setLangDropdown(open){
@@ -113,7 +164,32 @@ function setViewerMenu(open){
   viewerMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
 }
 
-/* ===== Theme ===== */
+/* Toast */
+function toast({ title, sub, icon = "✨", timeout = 4200 }){
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `
+    <div class="toast-ico" aria-hidden="true">${icon}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${sub ? `<div class="toast-sub">${sub}</div>` : ``}
+    </div>
+    <button class="toast-close" type="button" aria-label="Close">✕</button>
+  `;
+
+  const close = () => {
+    el.style.opacity = "0";
+    el.style.transform = "translateY(8px)";
+    setTimeout(() => el.remove(), 200);
+  };
+
+  el.querySelector(".toast-close").addEventListener("click", close);
+  toastRegion.appendChild(el);
+
+  if (timeout > 0) setTimeout(close, timeout);
+}
+
+/* Theme */
 function applyMode(mode){
   currentMode = mode;
   localStorage.setItem("dad_mode", mode);
@@ -122,30 +198,35 @@ function applyMode(mode){
   document.body.classList.add(mode === "light" ? "mode-light" : "mode-dark");
 }
 
-toggleThemeBtn.addEventListener("click", ()=>{
+toggleThemeBtn.addEventListener("click", () => {
   const isDark = document.body.classList.contains("mode-dark");
   applyMode(isDark ? "light" : "dark");
 });
 
-/* ===== Jordan date/time ===== */
+/* Jordan time */
 function updateJordanTime(){
   const now = new Date();
   const locale = (currentLang === "ar") ? "ar-JO" : "en-GB";
-  const formatted = new Intl.DateTimeFormat(locale, {
-    timeZone: "Asia/Amman",
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  }).format(now);
+  let formatted = "";
+  try{
+    formatted = new Intl.DateTimeFormat(locale, {
+      timeZone: "Asia/Amman",
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }).format(now);
+  }catch{
+    formatted = now.toLocaleString();
+  }
   timeJO.textContent = `🇯🇴 ${formatted}`;
 }
 setInterval(updateJordanTime, 1000);
 
-/* ===== Language ===== */
+/* Language */
 function updateLangUI(){
   langToggle.dataset.tooltip = i18n[currentLang].tooltipLang;
   toggleThemeBtn.dataset.tooltip = i18n[currentLang].tooltipTheme;
@@ -155,7 +236,9 @@ function updateLangUI(){
   document.documentElement.lang = currentLang;
   document.documentElement.dir = (currentLang === "ar") ? "rtl" : "ltr";
 
-  langItems.forEach(btn=>{
+  reportSearch.placeholder = i18n[currentLang].searchPlaceholder;
+
+  langItems.forEach(btn => {
     const isSel = btn.dataset.lang === currentLang;
     btn.classList.toggle("is-selected", isSel);
     btn.setAttribute("aria-checked", isSel ? "true" : "false");
@@ -166,45 +249,61 @@ function applyLanguage(lang){
   currentLang = lang;
   localStorage.setItem("dad_lang", lang);
 
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
+  $$("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     const val = i18n[currentLang]?.[key];
-    if(typeof val === "string") el.textContent = val;
+    if(typeof val === "string"){
+      if (key === "tipLogin") el.innerHTML = val;
+      else el.textContent = val;
+    }
   });
 
   updateLangUI();
-  buildViewerMenu();   // refresh menu labels
+  buildViewerMenu();
   updateJordanTime();
 }
 
-/* bind language menu */
-langToggle.addEventListener("click", (e)=>{
+langToggle.addEventListener("click", (e) => {
   e.stopPropagation();
   setLangDropdown(!langDropdown.classList.contains("open"));
 });
-document.addEventListener("click", (e)=>{
+
+document.addEventListener("click", (e) => {
   if(!e.target.closest(".lang-menu")) setLangDropdown(false);
   if(!e.target.closest(".fab-menu")) setViewerMenu(false);
 });
-document.addEventListener("keydown", (e)=>{
+
+document.addEventListener("keydown", (e) => {
   if(e.key === "Escape"){
     setLangDropdown(false);
     setViewerMenu(false);
   }
 });
-langItems.forEach(btn=>{
-  btn.addEventListener("click", ()=>{
+
+langItems.forEach(btn => {
+  btn.addEventListener("click", () => {
     applyLanguage(btn.dataset.lang);
     setLangDropdown(false);
   });
 });
 
-/* ===== App flow ===== */
-function login(){ switchScreen("report-screen"); }
+/* App flow */
+function login(){
+  switchScreen("report-screen");
+
+  if (!localStorage.getItem(STORAGE.welcomed)){
+    toast({
+      title: i18n[currentLang].toastWelcomeTitle,
+      sub: i18n[currentLang].toastWelcomeSub,
+      icon: "👋"
+    });
+    localStorage.setItem(STORAGE.welcomed, "1");
+  }
+}
 
 function logout(){
   frame.src = "";
-  cards.forEach(c=>c.classList.remove("active"));
+  reportCards().forEach(c => c.classList.remove("active"));
   switchScreen("login-screen");
 }
 
@@ -213,39 +312,66 @@ function backToReports(){
   switchScreen("report-screen");
 }
 
-/* open report */
 function openReportByCard(card){
-  cards.forEach(c=>c.classList.remove("active"));
+  if(!card) return;
+
+  reportCards().forEach(c => c.classList.remove("active"));
   card.classList.add("active");
 
   viewerLoading.style.display = "flex";
   frame.src = card.dataset.url;
+
+  if (card.dataset.key) localStorage.setItem(STORAGE.lastKey, card.dataset.key);
+
   switchScreen("viewer-screen");
 }
 
-cards.forEach(card=>{
-  card.addEventListener("click", ()=> openReportByCard(card));
+/* Reports click delegation */
+reportsGrid.addEventListener("click", (e) => {
+  const card = e.target.closest(".report-card");
+  if(card) openReportByCard(card);
 });
 
-/* viewer actions (topbar) */
-reloadTopBtn.addEventListener("click", ()=>{
+/* Hover highlight position */
+reportsGrid.addEventListener("pointermove", (e) => {
+  const card = e.target.closest(".report-card");
+  if(!card) return;
+  const r = card.getBoundingClientRect();
+  const rx = ((e.clientX - r.left) / r.width) * 100;
+  const ry = ((e.clientY - r.top) / r.height) * 100;
+  card.style.setProperty("--rx", rx + "%");
+  card.style.setProperty("--ry", ry + "%");
+});
+
+loginBtn.addEventListener("click", login);
+logoutBtn.addEventListener("click", logout);
+
+/* Enter on login */
+document.addEventListener("keydown", (e) => {
+  const activeLogin = document.getElementById("login-screen")?.classList.contains("is-active");
+  if(activeLogin && e.key === "Enter"){
+    e.preventDefault();
+    login();
+  }
+});
+
+/* Viewer actions */
+reloadTopBtn.addEventListener("click", () => {
   if(!frame.src) return;
   viewerLoading.style.display = "flex";
-  const current = frame.src;
-  frame.src = current;
+  frame.src = frame.src;
 });
 
-newTabTopBtn.addEventListener("click", ()=>{
+newTabTopBtn.addEventListener("click", () => {
   if(!frame.src) return;
   window.open(frame.src, "_blank", "noopener");
 });
 
-frame.addEventListener("load", ()=>{
+frame.addEventListener("load", () => {
   viewerLoading.style.display = "none";
-  window.scrollTo(0,0);
 });
 
-/* ===== FAB menu dropdown (Home + reports) ===== */
+/* FAB menu */
 function buildViewerMenu(){
   viewerMenuDropdown.innerHTML = "";
 
@@ -253,7 +379,7 @@ function buildViewerMenu(){
   homeBtn.className = "fab-item";
   homeBtn.type = "button";
   homeBtn.innerHTML = `<span>${i18n[currentLang].home}</span><span class="fab-pill">🏠</span>`;
-  homeBtn.addEventListener("click", ()=>{
+  homeBtn.addEventListener("click", () => {
     setViewerMenu(false);
     backToReports();
   });
@@ -263,7 +389,7 @@ function buildViewerMenu(){
   divider.className = "fab-divider";
   viewerMenuDropdown.appendChild(divider);
 
-  cards.forEach(card=>{
+  reportCards().forEach(card => {
     const key = card.getAttribute("data-i18n");
     const label = i18n[currentLang][key] || card.textContent.trim();
 
@@ -271,7 +397,7 @@ function buildViewerMenu(){
     item.className = "fab-item";
     item.type = "button";
     item.innerHTML = `<span>${label}</span><span class="fab-pill">📊</span>`;
-    item.addEventListener("click", ()=>{
+    item.addEventListener("click", () => {
       setViewerMenu(false);
       openReportByCard(card);
     });
@@ -279,14 +405,74 @@ function buildViewerMenu(){
   });
 }
 
-viewerMenuBtn.addEventListener("click", (e)=>{
+viewerMenuBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   setViewerMenu(!viewerMenuDropdown.classList.contains("open"));
 });
 
-/* ===== Init ===== */
+/* Search */
+function filterReports(term){
+  const q = (term || "").trim().toLowerCase();
+  let visible = 0;
+
+  reportCards().forEach(card => {
+    const key = card.getAttribute("data-i18n");
+    const label = (i18n[currentLang][key] || card.textContent || "").toLowerCase();
+
+    const ok = !q || label.includes(q);
+    card.hidden = !ok;
+    if(ok) visible++;
+  });
+
+  emptyState.hidden = visible !== 0;
+}
+
+reportSearch.addEventListener("input", () => {
+  const val = reportSearch.value || "";
+  clearSearch.hidden = val.length === 0;
+  filterReports(val);
+});
+
+clearSearch.addEventListener("click", () => {
+  reportSearch.value = "";
+  clearSearch.hidden = true;
+  filterReports("");
+  reportSearch.focus();
+});
+
+/* Open last */
+openLastBtn.addEventListener("click", () => {
+  const lastKey = localStorage.getItem(STORAGE.lastKey);
+  if(!lastKey){
+    toast({ title: i18n[currentLang].openLastNone, icon: "🕘", timeout: 2600 });
+    return;
+  }
+  const card = reportCards().find(c => c.dataset.key === lastKey);
+  if(card) openReportByCard(card);
+  else toast({ title: i18n[currentLang].openLastNone, icon: "🕘", timeout: 2600 });
+});
+
+/* Network */
+function setNet(ok){
+  if (!netStatus) return;
+  netStatus.hidden = false;
+  netStatus.textContent = ok ? i18n[currentLang].toastOnline : i18n[currentLang].toastOffline;
+  netStatus.style.color = ok ? "var(--good)" : "var(--warn)";
+  setTimeout(() => { netStatus.hidden = true; }, 3000);
+}
+window.addEventListener("offline", () => {
+  setNet(false);
+  toast({ title: i18n[currentLang].toastOffline, icon: "📴", timeout: 2600 });
+});
+window.addEventListener("online", () => {
+  setNet(true);
+  toast({ title: i18n[currentLang].toastOnline, icon: "✅", timeout: 2200 });
+});
+
+/* Init */
 applyMode(currentMode);
 applyLanguage(currentLang);
 updateJordanTime();
 buildViewerMenu();
 switchScreen("login-screen");
+filterReports("");
