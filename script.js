@@ -1,14 +1,5 @@
 "use strict";
 
-/* =========================
-   DAD Reporting System Ultra (Stable Layout)
-   - Bilingual (AR/EN) + RTL
-   - Dark/Light
-   - Jordan time
-   - UX: Toasts, Search, Open Last
-   - Viewer actions + FAB menu
-========================= */
-
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -51,7 +42,6 @@ const i18n = {
     mktDept: "Marketing Department",
     reportingSystem: "Reporting System",
     username: "Username",
-    userFixed: "User Fixed – No Password Required",
     enter: "Enter Dashboard",
     reportsTitle: "Reports",
     reportsSub: "Choose a report to open",
@@ -64,22 +54,16 @@ const i18n = {
     tooltipReload: "Reload",
     tooltipNewTab: "New Tab",
     poweredBy: "Powered by",
-
     welcomePill: "Welcome",
-    loginHint: "Open dashboards, explore insights, and export results quickly.",
-    tipLogin: "Press <b>Enter</b> to continue.",
-
     searchPlaceholder: "Search reports…",
     noResults: "No matching reports",
     noResultsSub: "Try a different keyword.",
     openLast: "Open Last",
     openLastNone: "No last report yet",
-
     toastWelcomeTitle: "Welcome 👋",
     toastWelcomeSub: "Choose a report and start exploring insights.",
     toastOffline: "You are offline",
     toastOnline: "Back online",
-
     r_ims: "IMS Overall Analysis",
     r_tms: "TMS Overall Analysis",
     r_iqvia: "IQVIA – MIDAS",
@@ -93,7 +77,6 @@ const i18n = {
     mktDept: "قسم التسويق",
     reportingSystem: "نظام التقارير",
     username: "اسم المستخدم",
-    userFixed: "المستخدم ثابت – بدون كلمة مرور",
     enter: "دخول لوحة التقارير",
     reportsTitle: "التقارير",
     reportsSub: "اختر تقريرًا لفتحه",
@@ -106,22 +89,16 @@ const i18n = {
     tooltipReload: "تحديث",
     tooltipNewTab: "تبويب جديد",
     poweredBy: "Powered by",
-
     welcomePill: "مرحبًا",
-    loginHint: "افتح لوحات المعلومات، واستكشف المؤشرات، واستخرج النتائج بسرعة.",
-    tipLogin: "اضغط <b>Enter</b> للمتابعة.",
-
     searchPlaceholder: "ابحث عن التقارير…",
     noResults: "لا توجد نتائج مطابقة",
     noResultsSub: "جرّب كلمة مختلفة.",
     openLast: "فتح الأخير",
     openLastNone: "لا يوجد تقرير سابق بعد",
-
     toastWelcomeTitle: "أهلًا 👋",
     toastWelcomeSub: "اختر تقريرًا وابدأ استكشاف المؤشرات.",
     toastOffline: "أنت غير متصل بالإنترنت",
     toastOnline: "تمت العودة للاتصال",
-
     r_ims: "تحليل IMS الشامل",
     r_tms: "تحليل TMS الشامل",
     r_iqvia: "IQVIA – MIDAS",
@@ -149,7 +126,12 @@ function switchScreen(id){
   if(!inViewer) setViewerMenu(false);
 
   if (id === "login-screen") loginBtn?.focus?.();
-  if (id === "report-screen") reportSearch?.focus?.();
+  if (id === "report-screen") {
+    reportSearch?.focus?.();
+    reportCards().forEach((card, i) => {
+      card.style.animation = `screenFade 0.4s ease-out ${i * 0.05}s both`;
+    });
+  }
 
   window.scrollTo({ top: 0, behavior: "instant" });
 }
@@ -164,7 +146,6 @@ function setViewerMenu(open){
   viewerMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
 }
 
-/* Toast */
 function toast({ title, sub, icon = "✨", timeout = 4200 }){
   const el = document.createElement("div");
   el.className = "toast";
@@ -179,8 +160,8 @@ function toast({ title, sub, icon = "✨", timeout = 4200 }){
 
   const close = () => {
     el.style.opacity = "0";
-    el.style.transform = "translateY(8px)";
-    setTimeout(() => el.remove(), 200);
+    el.style.transform = "translateX(20px)";
+    setTimeout(() => el.remove(), 300);
   };
 
   el.querySelector(".toast-close").addEventListener("click", close);
@@ -189,7 +170,6 @@ function toast({ title, sub, icon = "✨", timeout = 4200 }){
   if (timeout > 0) setTimeout(close, timeout);
 }
 
-/* Theme */
 function applyMode(mode){
   currentMode = mode;
   localStorage.setItem("dad_mode", mode);
@@ -203,7 +183,6 @@ toggleThemeBtn.addEventListener("click", () => {
   applyMode(isDark ? "light" : "dark");
 });
 
-/* Jordan time */
 function updateJordanTime(){
   const now = new Date();
   const locale = (currentLang === "ar") ? "ar-JO" : "en-GB";
@@ -226,7 +205,6 @@ function updateJordanTime(){
 }
 setInterval(updateJordanTime, 1000);
 
-/* Language */
 function updateLangUI(){
   langToggle.dataset.tooltip = i18n[currentLang].tooltipLang;
   toggleThemeBtn.dataset.tooltip = i18n[currentLang].tooltipTheme;
@@ -253,8 +231,7 @@ function applyLanguage(lang){
     const key = el.getAttribute("data-i18n");
     const val = i18n[currentLang]?.[key];
     if(typeof val === "string"){
-      if (key === "tipLogin") el.innerHTML = val;
-      else el.textContent = val;
+      el.textContent = val;
     }
   });
 
@@ -287,7 +264,6 @@ langItems.forEach(btn => {
   });
 });
 
-/* App flow */
 function login(){
   switchScreen("report-screen");
 
@@ -326,27 +302,39 @@ function openReportByCard(card){
   switchScreen("viewer-screen");
 }
 
-/* Reports click delegation */
 reportsGrid.addEventListener("click", (e) => {
   const card = e.target.closest(".report-card");
   if(card) openReportByCard(card);
 });
 
-/* Hover highlight position */
 reportsGrid.addEventListener("pointermove", (e) => {
   const card = e.target.closest(".report-card");
   if(!card) return;
   const r = card.getBoundingClientRect();
+  
   const rx = ((e.clientX - r.left) / r.width) * 100;
   const ry = ((e.clientY - r.top) / r.height) * 100;
   card.style.setProperty("--rx", rx + "%");
   card.style.setProperty("--ry", ry + "%");
+
+  const xCenter = (e.clientX - r.left - r.width / 2);
+  const yCenter = (e.clientY - r.top - r.height / 2);
+  const rotateX = -(yCenter / (r.height / 2)) * 12; 
+  const rotateY = (xCenter / (r.width / 2)) * 12;
+  
+  card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px) scale3d(1.02, 1.02, 1.02)`;
 });
+
+reportsGrid.addEventListener("pointerleave", (e) => {
+  const card = e.target.closest(".report-card");
+  if(card && !card.contains(e.relatedTarget)) {
+      card.style.transform = ""; 
+  }
+}, true); 
 
 loginBtn.addEventListener("click", login);
 logoutBtn.addEventListener("click", logout);
 
-/* Enter on login */
 document.addEventListener("keydown", (e) => {
   const activeLogin = document.getElementById("login-screen")?.classList.contains("is-active");
   if(activeLogin && e.key === "Enter"){
@@ -355,7 +343,6 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* Viewer actions */
 reloadTopBtn.addEventListener("click", () => {
   if(!frame.src) return;
   viewerLoading.style.display = "flex";
@@ -371,7 +358,6 @@ frame.addEventListener("load", () => {
   viewerLoading.style.display = "none";
 });
 
-/* FAB menu */
 function buildViewerMenu(){
   viewerMenuDropdown.innerHTML = "";
 
@@ -410,7 +396,6 @@ viewerMenuBtn.addEventListener("click", (e) => {
   setViewerMenu(!viewerMenuDropdown.classList.contains("open"));
 });
 
-/* Search */
 function filterReports(term){
   const q = (term || "").trim().toLowerCase();
   let visible = 0;
@@ -440,7 +425,6 @@ clearSearch.addEventListener("click", () => {
   reportSearch.focus();
 });
 
-/* Open last */
 openLastBtn.addEventListener("click", () => {
   const lastKey = localStorage.getItem(STORAGE.lastKey);
   if(!lastKey){
@@ -452,7 +436,6 @@ openLastBtn.addEventListener("click", () => {
   else toast({ title: i18n[currentLang].openLastNone, icon: "🕘", timeout: 2600 });
 });
 
-/* Network */
 function setNet(ok){
   if (!netStatus) return;
   netStatus.hidden = false;
@@ -469,7 +452,6 @@ window.addEventListener("online", () => {
   toast({ title: i18n[currentLang].toastOnline, icon: "✅", timeout: 2200 });
 });
 
-/* Init */
 applyMode(currentMode);
 applyLanguage(currentLang);
 updateJordanTime();

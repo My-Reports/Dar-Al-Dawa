@@ -12,17 +12,14 @@
 
   <a class="skip-link" href="#appMain">Skip to content</a>
 
-  <!-- Decorative background -->
   <div class="bg-decor" aria-hidden="true">
     <span class="blob blob-a"></span>
     <span class="blob blob-b"></span>
     <span class="grid"></span>
   </div>
 
-  <!-- Toasts -->
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- ===== Topbar (Global) ===== -->
   <header class="topbar" aria-label="Top bar">
     <div class="brand" aria-label="Brand">
       <span class="brand-dot" aria-hidden="true"></span>
@@ -38,13 +35,11 @@
     </div>
 
     <div class="topbar-actions">
-      <!-- Viewer actions (only visible in viewer screen) -->
       <div class="viewer-actions-top" id="viewerActionsTop" aria-label="Viewer actions">
         <button class="icon-btn icon-strong has-tooltip" id="reloadTopBtn" type="button" data-tooltip="Reload" aria-label="Reload">🔄</button>
         <button class="icon-btn icon-strong has-tooltip" id="newTabTopBtn" type="button" data-tooltip="New Tab" aria-label="Open in new tab">🔗</button>
       </div>
 
-      <!-- Language -->
       <div class="lang-menu" aria-label="Language menu">
         <button
           id="langToggle"
@@ -71,7 +66,6 @@
         </div>
       </div>
 
-      <!-- Theme -->
       <button
         class="icon-btn icon-strong has-tooltip"
         id="toggleThemeBtn"
@@ -84,7 +78,6 @@
 
   <main id="appMain" class="app" role="main">
 
-    <!-- ================= LOGIN ================= -->
     <section id="login-screen" class="screen is-active screen-login" aria-label="Login screen">
       <div class="login-shell">
         <img src="Assets/DAD2.gif" class="login-logo" alt="DAD Logo" />
@@ -97,24 +90,10 @@
           <h1 class="login-title" data-i18n="mktDept">Marketing Department</h1>
           <p class="login-subtitle" data-i18n="reportingSystem">Reporting System</p>
 
-          <div class="hint" data-i18n="loginHint">
-            Open dashboards, explore insights, and export results quickly.
-          </div>
-
           <label class="field-label" for="username" data-i18n="username">Username</label>
-          <input type="text" id="username" value="mkt" readonly />
-
-          <div class="info-chip" role="note">
-            <span class="dot" aria-hidden="true"></span>
-            <span data-i18n="userFixed">User Fixed – No Password Required</span>
-          </div>
+          <input type="text" id="username" value="mkt" readonly style="margin-bottom: 25px;" />
 
           <button id="login-btn" class="btn-primary" type="button" data-i18n="enter">Enter Dashboard</button>
-
-          <div class="helper-row">
-            <span class="kbd">Tip</span>
-            <span class="helper-text" data-i18n="tipLogin">Press <b>Enter</b> to continue.</span>
-          </div>
         </div>
       </div>
 
@@ -123,7 +102,6 @@
       </footer>
     </section>
 
-    <!-- ================= REPORTS ================= -->
     <section id="report-screen" class="screen screen-reports" aria-label="Reports screen">
       <div class="reports-layout">
 
@@ -202,7 +180,6 @@
       </div>
     </section>
 
-    <!-- ================= VIEWER ================= -->
     <section id="viewer-screen" class="screen screen-viewer" aria-label="Viewer screen">
       <div class="fab-menu" aria-label="Quick menu">
         <button class="fab-btn" id="viewerMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Menu">☰</button>
